@@ -167,26 +167,31 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 	}
 
 	private List<AnnotatedResourceField> getResourceFields(List<ResourceFieldWrapper> resourceClassFields, List<ResourceFieldWrapper> resourceGetterFields) {
-		Map<String, AnnotatedResourceField> resourceFieldMap = new HashMap<>();
+		Map<String, Integer> resourceFieldPositions = new HashMap<>();
+		List<AnnotatedResourceField> resourceFields = new ArrayList<>();
 
 		for (ResourceFieldWrapper fieldWrapper : resourceClassFields) {
-			if (!fieldWrapper.isDiscarded())
-				resourceFieldMap.put(fieldWrapper.getResourceField().getUnderlyingName(), fieldWrapper.getResourceField());
+			if (!fieldWrapper.isDiscarded()){
+				resourceFieldPositions.put(fieldWrapper.getResourceField().getUnderlyingName(), resourceFields.size());
+				resourceFields.add(fieldWrapper.getResourceField());
+			}
 		}
 
 		for (ResourceFieldWrapper fieldWrapper : resourceGetterFields) {
 			if (!fieldWrapper.isDiscarded()) {
 				String originalName = fieldWrapper.getResourceField().getUnderlyingName();
 				AnnotatedResourceField field = fieldWrapper.getResourceField();
-				if (resourceFieldMap.containsKey(originalName)) {
-					resourceFieldMap.put(originalName, mergeAnnotations(resourceFieldMap.get(originalName), field, context));
+				if (resourceFieldPositions.containsKey(originalName)) {
+					int pos = resourceFieldPositions.get(originalName);
+					resourceFields.set(pos, mergeAnnotations(resourceFields.get(pos), field, context));
 				} else if (!hasDiscardedField(fieldWrapper, resourceClassFields)) {
-					resourceFieldMap.put(originalName, field);
+					resourceFieldPositions.put(originalName, resourceFields.size());
+					resourceFields.add(field);
 				}
 			}
 		}
 
-		return discardIgnoredField(resourceFieldMap.values());
+		return discardIgnoredField(resourceFields);
 	}
 
 	private List<AnnotatedResourceField> discardIgnoredField(Collection<AnnotatedResourceField> resourceFieldValues) {

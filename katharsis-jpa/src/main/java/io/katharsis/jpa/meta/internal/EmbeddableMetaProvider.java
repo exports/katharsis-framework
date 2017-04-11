@@ -1,6 +1,5 @@
 package io.katharsis.jpa.meta.internal;
 
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,13 +10,15 @@ import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.jpa.meta.MetaEmbeddable;
 import io.katharsis.jpa.meta.MetaEmbeddableAttribute;
 import io.katharsis.jpa.meta.MetaJpaDataObject;
-import io.katharsis.meta.internal.MetaUtils;
+import io.katharsis.jpa.query.AnyTypeObject;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;
 
 public class EmbeddableMetaProvider extends AbstractJpaDataObjectProvider<MetaEmbeddable> {
 
+	private static final Object VALUE_ANYTYPE_ATTR_NAME = "value";
+	
 	@Override
 	public Set<Class<? extends MetaElement>> getMetaTypes() {
 		Set<Class<? extends MetaElement>> set = new HashSet<>();
@@ -53,12 +54,17 @@ public class EmbeddableMetaProvider extends AbstractJpaDataObjectProvider<MetaEm
 	}
 
 	@Override
-	protected MetaAttribute createAttribute(MetaEmbeddable metaDataObject, PropertyDescriptor desc) {
+	protected MetaAttribute createAttribute(MetaEmbeddable metaDataObject, String name) {
 		MetaEmbeddableAttribute attr = new MetaEmbeddableAttribute();
 		attr.setParent(metaDataObject, true);
-		attr.setName(MetaUtils.firstToLower(desc.getName()));
+		attr.setName(name);
 		attr.setFilterable(true);
 		attr.setSortable(true);
+		
+		if(AnyTypeObject.class.isAssignableFrom(metaDataObject.getImplementationClass()) && name.equals(VALUE_ANYTYPE_ATTR_NAME)){
+			attr.setDerived(true);
+		}
+		
 		return attr;
 	}
 }

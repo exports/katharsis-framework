@@ -78,6 +78,8 @@ public class ResourceInformation {
 	
 	private Map<String, ResourceField> fieldByJsonName = new HashMap<>();
 
+	private List<ResourceField> fields;
+
 	public ResourceInformation(TypeParser parser, Class<?> resourceClass, String resourceType, String superResourceType, List<ResourceField> fields) {
 		this(parser, resourceClass, resourceType, superResourceType, null, fields);
 	}
@@ -89,6 +91,7 @@ public class ResourceInformation {
 		this.resourceType = resourceType;
 		this.superResourceType = superResourceType;
 		this.instanceBuilder = instanceBuilder;
+		this.fields = fields;
 
 		if (fields != null) {
 			List<ResourceField> idFields = ResourceFieldType.ID.filter(fields);
@@ -280,6 +283,10 @@ public class ResourceInformation {
 	@Deprecated // Temporary method until proper versioning/locking/timestamping
 				// is implemented, used by JPA module
 	public void verify(Object resource, Document requestDocument) {
+	}
+
+	public List<ResourceField> getFields() {
+		return fields;
 	}
 
 }

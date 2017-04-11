@@ -1,5 +1,7 @@
 package io.katharsis.jpa.meta;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,6 +30,27 @@ public class JpaMetaProviderAttributeTest {
 		Assert.assertFalse(attr.isVersion());
 		Assert.assertFalse(attr.isLazy());
 		Assert.assertNull(attr.getOppositeAttribute());
+	}
+
+	@Test
+	public void testAttributeOrder() {
+		MetaLookup lookup = new MetaLookup();
+		lookup.addProvider(new JpaMetaProvider());
+		lookup.initialize();
+		MetaEntity meta = lookup.getMeta(TestEntity.class, MetaEntity.class);
+
+		List<? extends MetaAttribute> attributes = meta.getAttributes();
+
+		Assert.assertEquals("stringValue", attributes.get(0).getName());
+		Assert.assertEquals("superRelatedValue", attributes.get(1).getName());
+		Assert.assertEquals("id", attributes.get(2).getName());
+		Assert.assertEquals("longValue", attributes.get(3).getName());
+		Assert.assertEquals("bytesValue", attributes.get(4).getName());
+		Assert.assertEquals("embValue", attributes.get(5).getName());
+		Assert.assertEquals("mapValue", attributes.get(6).getName());
+		Assert.assertEquals("oneRelatedValue", attributes.get(7).getName());
+		Assert.assertEquals("eagerRelatedValue", attributes.get(8).getName());
+		Assert.assertEquals("manyRelatedValues", attributes.get(9).getName());
 	}
 
 	@Test

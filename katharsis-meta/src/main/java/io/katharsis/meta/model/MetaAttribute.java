@@ -264,4 +264,12 @@ public class MetaAttribute extends MetaElement {
 	public void setLob(boolean blob) {
 		this.lob = blob;
 	}
+
+	public void setWriteMethod(Method writeMethod) {
+		this.writeMethod = writeMethod;
+	}
+
+	public void setReadMethod(Method readMethod) {
+		this.readMethod = readMethod;
+	}
 }

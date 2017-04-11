@@ -28,22 +28,24 @@ public class ClassUtils {
 	 * @return a list of found fields
 	 */
 	public static List<Field> getClassFields(Class<?> beanClass) {
-		Map<String, Field> result = new HashMap<>();
+		Map<String, Field> resultMap = new HashMap<>();
+		LinkedList<Field> results = new LinkedList<>();
 
 		Class<?> currentClass = beanClass;
 		while (currentClass != null && currentClass != Object.class) {
 			for (Field field : currentClass.getDeclaredFields()) {
 				if (!field.isSynthetic()) {
-					Field v = result.get(field.getName());
+					Field v = resultMap.get(field.getName());
 					if (v == null) {
-						result.put(field.getName(), field);
+						resultMap.put(field.getName(), field);
+						results.add(field);
 					}
 				}
 			}
 			currentClass = currentClass.getSuperclass();
 		}
 
-		return new LinkedList<>(result.values());
+		return results;
 	}
 
 	/**
@@ -135,16 +137,18 @@ public class ClassUtils {
 	 * @return a list of found getters
 	 */
 	public static List<Method> getClassGetters(Class<?> beanClass) {
-		Map<String, Method> result = new HashMap<>();
+		Map<String, Method> resultMap = new HashMap<>();
+		LinkedList<Method> results = new LinkedList<>();
 
 		Class<?> currentClass = beanClass;
 		while (currentClass != null && currentClass != Object.class) {
 			for (Method method : currentClass.getDeclaredMethods()) {
 				if (!method.isSynthetic()) {
 					if (isGetter(method)) {
-						Method v = result.get(method.getName());
+						Method v = resultMap.get(method.getName());
 						if (v == null) {
-							result.put(method.getName(), method);
+							resultMap.put(method.getName(), method);
+							results.add(method);
 						}
 					}
 				}
@@ -152,7 +156,7 @@ public class ClassUtils {
 			currentClass = currentClass.getSuperclass();
 		}
 
-		return new LinkedList<>(result.values());
+		return results;
 	}
 
 	/**

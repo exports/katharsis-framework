@@ -93,11 +93,15 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 	protected abstract T newDataObject();
 
 	@Override
-	protected MetaAttribute createAttribute(T metaDataObject, PropertyDescriptor desc) {
+	protected MetaAttribute createAttribute(T metaDataObject, String name) {
 		MetaEntityAttribute attr = new MetaEntityAttribute();
-		attr.setName(MetaUtils.firstToLower(desc.getName()));
+		attr.setName(name);
 		attr.setParent(metaDataObject, true);
+		return attr;
+	}
 
+	@Override
+	protected void initAttribute(MetaAttribute attr) {
 		ManyToMany manyManyAnnotation = attr.getAnnotation(ManyToMany.class);
 		ManyToOne manyOneAnnotation = attr.getAnnotation(ManyToOne.class);
 		OneToMany oneManyAnnotation = attr.getAnnotation(OneToMany.class);
@@ -117,7 +121,7 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 		attr.setFilterable(lobAnnotation == null);
 		attr.setSortable(lobAnnotation == null);
 
-		Class<?> attributeType = desc.getPropertyType();
+		Class<?> attributeType = attr.getReadMethod().getReturnType();
 		boolean isPrimitiveType = ClassUtils.isPrimitiveType(attributeType);
 		boolean columnNullable = columnAnnotation == null || columnAnnotation.nullable();
 		attr.setNullable(!isPrimitiveType && columnNullable);
@@ -126,8 +130,8 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 		attr.setInsertable(hasSetter && (columnAnnotation == null || columnAnnotation.insertable()) && !attrGenerated && versionAnnotation == null);
 		attr.setUpdatable(hasSetter && (columnAnnotation == null || columnAnnotation.updatable()) && !idAttr && versionAnnotation == null);
 
-		return attr;
 	}
+
 
 	@Override
 	public void onInitialized(MetaElement element) {

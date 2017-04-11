@@ -7,6 +7,8 @@ import io.katharsis.meta.model.MetaDataObject;
 
 public class AnyUtils {
 
+	private static final Object TYPE_ATTRIBUTE = "type";
+
 	private AnyUtils() {
 	}
 
@@ -27,6 +29,9 @@ public class AnyUtils {
 		else {
 			boolean found = false;
 			for (MetaAttribute attr : meta.getAttributes()) {
+				if(attr.getName().equals(TYPE_ATTRIBUTE)){
+					continue;
+				}
 				if (attr.getType().getImplementationClass().isAssignableFrom(value.getClass())) {
 					attr.setValue(dataObject, value);
 					found = true;
@@ -56,7 +61,9 @@ public class AnyUtils {
 		}
 
 		for (MetaAttribute attr : meta.getAttributes()) {
-
+			if(attr.getName().equals(TYPE_ATTRIBUTE)){
+				continue;
+			}
 			if (attr.isDerived()) {
 				// we only consider persisted classes, not derived ones like
 				// "value" itself

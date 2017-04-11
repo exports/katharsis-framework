@@ -27,6 +27,8 @@ import io.katharsis.meta.model.resource.MetaResourceBase;
 import io.katharsis.meta.model.resource.MetaResourceField;
 import io.katharsis.meta.model.resource.MetaResourceRepository;
 import io.katharsis.meta.provider.resource.ResourceMetaProvider;
+import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceInformation;
 
 public class ResourceMetaProviderTest extends AbstractMetaTest {
 
@@ -61,6 +63,27 @@ public class ResourceMetaProviderTest extends AbstractMetaTest {
 		Assert.assertTrue(idField.isFilterable());
 		Assert.assertTrue(idField.isInsertable());
 		Assert.assertFalse(idField.isUpdatable());
+	}
+
+	@Test
+	public void testPreserveAttributeOrder() {
+		ResourceInformation resourceInformation = boot.getResourceRegistry().getEntryForClass(Schedule.class).getResourceInformation();
+		List<ResourceField> fields = resourceInformation.getFields();
+		Assert.assertEquals("id", fields.get(0).getUnderlyingName());
+		Assert.assertEquals("name", fields.get(1).getUnderlyingName());
+		Assert.assertEquals("task", fields.get(2).getUnderlyingName());
+		Assert.assertEquals("lazyTask", fields.get(3).getUnderlyingName());
+		Assert.assertEquals("tasks", fields.get(4).getUnderlyingName());
+		Assert.assertEquals("delayed", fields.get(5).getUnderlyingName());
+		
+		MetaResource meta = lookup.getMeta(Schedule.class, MetaResource.class);
+		List<? extends MetaAttribute> attributes = meta.getAttributes();
+		Assert.assertEquals("id", attributes.get(0).getName());
+		Assert.assertEquals("name", attributes.get(1).getName());
+		Assert.assertEquals("task", attributes.get(2).getName());
+		Assert.assertEquals("lazyTask", attributes.get(3).getName());
+		Assert.assertEquals("tasks", attributes.get(4).getName());
+		Assert.assertEquals("delayed", attributes.get(5).getName());
 	}
 
 	@Test

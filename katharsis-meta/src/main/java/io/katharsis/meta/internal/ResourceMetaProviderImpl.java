@@ -114,27 +114,8 @@ public class ResourceMetaProviderImpl extends MetaProviderBase {
 			((MetaResource) resource).setResourceType(resourceType);
 		}
 
-		ResourceField idField = information.getIdField();
-		if (idField != null) {
-			addAttribute(resource, idField);
-		}
-
-		ResourceField metaField = information.getMetaField();
-		if (metaField != null) {
-			addAttribute(resource, metaField);
-		}
-
-		ResourceField linksField = information.getLinksField();
-		if (linksField != null) {
-			addAttribute(resource, linksField);
-		}
-
-		List<ResourceField> attrFields = information.getAttributeFields().getFields();
-		for (ResourceField field : attrFields) {
-			addAttribute(resource, field);
-		}
-
-		for (ResourceField field : information.getRelationshipFields()) {
+		List<ResourceField> fields = information.getFields();
+		for (ResourceField field : fields) {
 			addAttribute(resource, field);
 		}
 
