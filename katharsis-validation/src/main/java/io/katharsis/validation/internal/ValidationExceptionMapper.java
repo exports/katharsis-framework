@@ -2,11 +2,13 @@ package io.katharsis.validation.internal;
 
 import javax.validation.ValidationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.ExceptionMapperHelper;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.katharsis.repository.response.HttpStatus;
 
 public class ValidationExceptionMapper implements ExceptionMapper<ValidationException> {
 	
@@ -18,7 +20,7 @@ public class ValidationExceptionMapper implements ExceptionMapper<ValidationExce
 	public ErrorResponse toErrorResponse(ValidationException exception) {
 		logger.warn("a ValidationException occured", exception);
 		
-		return ExceptionMapperHelper.toErrorResponse(exception, ConstraintViolationExceptionMapper.UNPROCESSABLE_ENTITY_422,
+		return ExceptionMapperHelper.toErrorResponse(exception, HttpStatus.UNPROCESSABLE_ENTITY_422,
 				META_TYPE_VALUE);
 	}
 
@@ -29,7 +31,7 @@ public class ValidationExceptionMapper implements ExceptionMapper<ValidationExce
 
 	@Override
 	public boolean accepts(ErrorResponse errorResponse) {
-		return ExceptionMapperHelper.accepts(errorResponse, ConstraintViolationExceptionMapper.UNPROCESSABLE_ENTITY_422,
+		return ExceptionMapperHelper.accepts(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY_422,
 				META_TYPE_VALUE);
 	}
 }

@@ -1,6 +1,7 @@
 package io.katharsis.jpa;
 
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -18,9 +19,12 @@ import org.slf4j.LoggerFactory;
 
 import io.katharsis.core.internal.boot.TransactionRunner;
 import io.katharsis.core.internal.utils.PreconditionUtil;
+import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.jpa.internal.JpaRequestContext;
 import io.katharsis.jpa.internal.JpaResourceInformationBuilder;
 import io.katharsis.jpa.internal.OptimisticLockExceptionMapper;
+import io.katharsis.jpa.internal.PersistenceExceptionMapper;
+import io.katharsis.jpa.internal.PersistenceRollbackExceptionMapper;
 import io.katharsis.jpa.internal.query.backend.querydsl.QuerydslQueryImpl;
 import io.katharsis.jpa.mapping.JpaMapper;
 import io.katharsis.jpa.meta.JpaMetaProvider;
@@ -325,11 +329,52 @@ public class JpaModule implements Module {
 
 		context.addResourceInformationBuilder(getResourceInformationBuilder());
 		context.addExceptionMapper(new OptimisticLockExceptionMapper());
+		context.addExceptionMapper(new PersistenceExceptionMapper(context));
+		context.addExceptionMapper(new PersistenceRollbackExceptionMapper(context));
+
+		addHibernateConstraintViolationExceptionMapper();
+		addTransactionRollbackExceptionMapper();
 		context.addRepositoryDecoratorFactory(new JpaRepositoryDecoratorFactory());
 
 		if (em != null) {
 			setupServerRepositories();
 			setupTransactionMgmt();
+		}
+	}
+
+	private void addHibernateConstraintViolationExceptionMapper() {
+		try {
+			Class.forName("org.hibernate.exception.ConstraintViolationException");
+		} catch (ClassNotFoundException e) { // NOSONAR
+			// may not be available depending on environment
+			return;
+		}
+
+		try {
+			Class<?> mapperClass = Class.forName("io.katharsis.jpa.internal.HibernateConstraintViolationExceptionMapper");
+			Constructor<?> constructor = mapperClass.getConstructor();
+			ExceptionMapper<?> mapper = (ExceptionMapper<?>) constructor.newInstance();
+			context.addExceptionMapper(mapper);
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
+		}		
+	}
+
+	private void addTransactionRollbackExceptionMapper() {
+		try {
+			Class.forName("javax.transaction.RollbackException");
+		} catch (ClassNotFoundException e) { // NOSONAR
+			// may not be available depending on environment
+			return;
+		}
+
+		try {
+			Class<?> mapperClass = Class.forName("io.katharsis.jpa.internal.TransactionRollbackExceptionMapper");
+			Constructor<?> constructor = mapperClass.getConstructor(ModuleContext.class);
+			ExceptionMapper<?> mapper = (ExceptionMapper<?>) constructor.newInstance(context);
+			context.addExceptionMapper(mapper);
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
 		}
 	}
 

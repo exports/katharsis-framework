@@ -126,7 +126,8 @@
 						<groupId>javax</groupId>
 						<artifactId>javaee-api</artifactId>
 						<version>${javaee-api.version}</version>
-						<scope>test</scope>
+						<scope>compile</scope>
+						<optional>true</optional>
 				</dependency>
 
 				<dependency>
@@ -211,7 +212,8 @@
 						<groupId>org.hibernate</groupId>
 						<artifactId>hibernate-core</artifactId>
 						<version>${hibernate.version}</version>
-						<scope>test</scope>
+						<scope>compile</scope>
+						<optional>true</optional>
 				</dependency>
 
 				<dependency>

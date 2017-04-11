@@ -15,7 +15,6 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.ElementKind;
 import javax.validation.Path.Node;
 
-import io.katharsis.errorhandling.ExceptionMapperHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +22,10 @@ import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorDataBuilder;
 import io.katharsis.errorhandling.ErrorResponse;
+import io.katharsis.errorhandling.ExceptionMapperHelper;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.module.Module.ModuleContext;
+import io.katharsis.repository.response.HttpStatus;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
@@ -50,8 +51,6 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 
 	private ModuleContext context;
 
-	static final int UNPROCESSABLE_ENTITY_422 = 422;
-
 	private static final String DEFAULT_PRIMARY_KEY_NAME = "id";
 
 	public ConstraintViolationExceptionMapper(ModuleContext context) {
@@ -67,7 +66,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 
 			ErrorDataBuilder builder = ErrorData.builder();
 			builder = builder.addMetaField(META_TYPE_KEY, META_TYPE_VALUE);
-			builder = builder.setStatus(String.valueOf(UNPROCESSABLE_ENTITY_422));
+			builder = builder.setStatus(String.valueOf(HttpStatus.UNPROCESSABLE_ENTITY_422));
 			builder = builder.setTitle(violation.getMessage());
 
 			builder = builder.setCode(toCode(violation));
@@ -88,7 +87,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 			errors.add(error);
 		}
 
-		return ErrorResponse.builder().setStatus(UNPROCESSABLE_ENTITY_422).setErrorData(errors).build();
+		return ErrorResponse.builder().setStatus(HttpStatus.UNPROCESSABLE_ENTITY_422).setErrorData(errors).build();
 	}
 
 	private String toCode(ConstraintViolation<?> violation) {
@@ -128,7 +127,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 
 	@Override
 	public boolean accepts(ErrorResponse errorResponse) {
-		return ExceptionMapperHelper.accepts(errorResponse, UNPROCESSABLE_ENTITY_422, META_TYPE_VALUE);
+		return ExceptionMapperHelper.accepts(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY_422, META_TYPE_VALUE);
 	}
 
 	/**
