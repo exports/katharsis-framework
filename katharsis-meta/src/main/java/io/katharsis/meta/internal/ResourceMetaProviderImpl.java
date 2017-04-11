@@ -214,6 +214,7 @@ public class ResourceMetaProviderImpl extends MetaProviderBase {
 			ResourceField idField = information.getIdField();
 			if (idField != null) {
 				MetaAttribute idAttr = metaResource.getAttribute(idField.getUnderlyingName());
+				idAttr.setPrimaryKeyAttribute(true);
 
 				if (metaResource.getSuperType() == null || metaResource.getSuperType().getPrimaryKey() == null) {
 					MetaPrimaryKey primaryKey = new MetaPrimaryKey();

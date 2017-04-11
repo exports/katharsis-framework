@@ -63,6 +63,7 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 			for (MetaAttribute attr : meta.getAttributes()) {
 				if (attr.getAnnotation(Id.class) != null || attr.getAnnotation(EmbeddedId.class) != null) {
 					pkElements.add(attr);
+					attr.setPrimaryKeyAttribute(true);
 
 					boolean attrGenerated = attr.getAnnotation(GeneratedValue.class) != null;
 					if (pkElements.size() == 1) {

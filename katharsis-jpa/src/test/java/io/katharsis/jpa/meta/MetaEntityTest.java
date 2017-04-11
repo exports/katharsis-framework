@@ -22,6 +22,7 @@ public class MetaEntityTest {
 		Assert.assertNotNull(primaryKey);
 		Assert.assertEquals(1, primaryKey.getElements().size());
 		Assert.assertEquals("id", primaryKey.getElements().get(0).getName());
+		Assert.assertTrue(primaryKey.getElements().get(0).isPrimaryKeyAttribute());
 		Assert.assertFalse(primaryKey.isGenerated());
 	}
 
@@ -34,6 +35,7 @@ public class MetaEntityTest {
 		Assert.assertNotNull(primaryKey);
 		Assert.assertEquals(1, primaryKey.getElements().size());
 		Assert.assertEquals("id", primaryKey.getElements().get(0).getName());
+		Assert.assertTrue(primaryKey.getElements().get(0).isPrimaryKeyAttribute());
 		Assert.assertFalse(primaryKey.isGenerated());
 	}
 

@@ -63,6 +63,7 @@ public class ResourceMetaProviderTest extends AbstractMetaTest {
 		Assert.assertTrue(idField.isFilterable());
 		Assert.assertTrue(idField.isInsertable());
 		Assert.assertFalse(idField.isUpdatable());
+		Assert.assertTrue(idField.isPrimaryKeyAttribute());
 	}
 
 	@Test
