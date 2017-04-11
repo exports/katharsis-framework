@@ -2,11 +2,13 @@ package io.katharsis.jpa.internal;
 
 import javax.persistence.RollbackException;
 
+import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.module.Module;
 import io.katharsis.module.Module.ModuleContext;
+import io.katharsis.repository.response.HttpStatus;
 import io.katharsis.utils.Optional;
 
 /**
@@ -29,7 +31,9 @@ public class PersistenceRollbackExceptionMapper implements ExceptionMapper<Rollb
 				return mapper.get().toErrorResponse(cause);
 			}
 		}
-		return null;
+		// no mapper found, return default error
+		ErrorData errorData = ErrorData.builder().setStatus(Integer.toString(HttpStatus.INTERNAL_SERVER_ERROR_500)).setTitle(exception.getMessage()).build();
+		return ErrorResponse.builder().setSingleErrorData(errorData).setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500).build();
 	}
 
 	@Override

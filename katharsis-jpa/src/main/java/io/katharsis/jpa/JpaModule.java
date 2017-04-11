@@ -334,6 +334,7 @@ public class JpaModule implements Module {
 		context.addExceptionMapper(new PersistenceExceptionMapper(context));
 		context.addExceptionMapper(new PersistenceRollbackExceptionMapper(context));
 
+		addHibernateConstraintViolationExceptionMapper();
 		addTransactionRollbackExceptionMapper();
 		context.addRepositoryDecoratorFactory(new JpaRepositoryDecoratorFactory());
 
@@ -343,10 +344,28 @@ public class JpaModule implements Module {
 		}
 	}
 
+	private void addHibernateConstraintViolationExceptionMapper() {
+		try {
+			Class.forName("org.hibernate.exception.ConstraintViolationException");
+		} catch (ClassNotFoundException e) { // NOSONAR
+			// may not be available depending on environment
+			return;
+		}
+
+		try {
+			Class<?> mapperClass = Class.forName("io.katharsis.jpa.internal.HibernateConstraintViolationExceptionMapper");
+			Constructor<?> constructor = mapperClass.getConstructor();
+			ExceptionMapper<?> mapper = (ExceptionMapper<?>) constructor.newInstance();
+			context.addExceptionMapper(mapper);
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
+		}		
+	}
+
 	private void addTransactionRollbackExceptionMapper() {
 		try {
 			Class.forName("javax.transaction.RollbackException");
-		} catch (ClassNotFoundException e) {
+		} catch (ClassNotFoundException e) { // NOSONAR
 			// may not be available depending on environment
 			return;
 		}
@@ -359,7 +378,6 @@ public class JpaModule implements Module {
 		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}
-	
 	}
 
 	class JpaRepositoryDecoratorFactory implements RepositoryDecoratorFactory {

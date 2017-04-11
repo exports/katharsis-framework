@@ -2,6 +2,7 @@ package io.katharsis.jpa;
 
 import javax.persistence.PersistenceException;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +13,7 @@ import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.exception.BadRequestException;
+import io.katharsis.jpa.internal.HibernateConstraintViolationExceptionMapper;
 import io.katharsis.jpa.internal.PersistenceExceptionMapper;
 import io.katharsis.jpa.internal.PersistenceRollbackExceptionMapper;
 import io.katharsis.jpa.internal.TransactionRollbackExceptionMapper;
@@ -41,6 +43,23 @@ public class JpaExceptionMapperTests {
 		ErrorData errorData = response.getErrors().iterator().next();
 		Assert.assertEquals(Integer.toString(HttpStatus.BAD_REQUEST_400), errorData.getStatus());
 		Assert.assertEquals("test", errorData.getDetail());
+	}
+	
+	@Test
+	public void testConstraintException() {
+		ConstraintViolationException exception = new ConstraintViolationException("message", null, "constraint");
+		ExceptionMapperRegistry exceptionMapperRegistry = boot.getExceptionMapperRegistry();
+		HibernateConstraintViolationExceptionMapper mapper = (HibernateConstraintViolationExceptionMapper) exceptionMapperRegistry.findMapperFor(ConstraintViolationException.class).get();
+		ErrorResponse response = mapper.toErrorResponse(exception);
+		ErrorData errorData = response.getErrors().iterator().next();
+		Assert.assertEquals(Integer.toString(HttpStatus.UNPROCESSABLE_ENTITY_422), errorData.getStatus());
+		Assert.assertEquals(exception.getConstraintName(), errorData.getCode());
+		Assert.assertEquals(exception.getMessage(), errorData.getDetail());
+		
+		Assert.assertTrue(mapper.accepts(response));
+		ConstraintViolationException deserializedException = mapper.fromErrorResponse(response);
+		Assert.assertEquals(exception.getMessage(), deserializedException.getMessage());
+		Assert.assertEquals(exception.getConstraintName(), deserializedException.getConstraintName());
 	}
 
 	@Test
