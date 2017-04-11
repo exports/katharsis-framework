@@ -6,6 +6,7 @@ import java.util.List;
 import io.katharsis.jpa.internal.query.backend.JpaQueryBackend;
 import io.katharsis.jpa.query.AnyTypeObject;
 import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.meta.model.MetaAttributeFinder;
 import io.katharsis.meta.model.MetaAttributePath;
 import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaKey;
@@ -18,10 +19,12 @@ public class QuerySortBuilder<T, E, O> {
 
 	protected JpaQueryBackend<?, O, ?, E> backend;
 	protected AbstractJpaQueryImpl<T, ?> query;
+	private MetaAttributeFinder attributeFinder;
 
-	public QuerySortBuilder(AbstractJpaQueryImpl<T, ?> query, JpaQueryBackend<?, O, ?, E> backend) {
+	public QuerySortBuilder(AbstractJpaQueryImpl<T, ?> query, JpaQueryBackend<?, O, ?, E> backend, MetaAttributeFinder attributeFinder) {
 		this.backend = backend;
 		this.query = query;
+		this.attributeFinder = attributeFinder;
 	}
 
 	public void applySortSpec() {
@@ -57,7 +60,7 @@ public class QuerySortBuilder<T, E, O> {
 		List<O> orders = new ArrayList<>();
 
 		// check for AnyType
-		MetaAttributePath path = query.getMeta().resolvePath(sortSpec.getAttributePath(), true);
+		MetaAttributePath path = query.getMeta().resolvePath(sortSpec.getAttributePath(), attributeFinder);
 		MetaAttribute attr = path.getLast();
 		MetaType valueType = attr.getType();
 		if (valueType instanceof MetaMapType) {

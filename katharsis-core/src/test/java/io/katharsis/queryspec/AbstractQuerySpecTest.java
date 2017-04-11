@@ -1,7 +1,9 @@
 package io.katharsis.queryspec;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,6 +17,8 @@ import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
 import io.katharsis.legacy.queryParams.QueryParamsBuilder;
 import io.katharsis.legacy.registry.ResourceRegistryBuilder;
 import io.katharsis.module.ModuleRegistry;
+import io.katharsis.resource.information.ResourceFieldAccess;
+import io.katharsis.resource.information.ResourceFieldAccessor;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Task;
@@ -36,7 +40,32 @@ public abstract class AbstractQuerySpecTest {
 	@Before
 	public void setup() {
 		JsonServiceLocator jsonServiceLocator = new SampleJsonServiceLocator();
-		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
+		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer()) {
+
+			@Override
+			protected List<AnnotatedResourceField> getResourceFields(Class<?> resourceClass) {
+				List<AnnotatedResourceField> fields = super.getResourceFields(resourceClass);
+
+				if (resourceClass == Task.class) {
+					// add additional field that is not defined on the class
+					String name = "computedAttribute";
+					ResourceFieldAccess access = new ResourceFieldAccess(true, true, true, true);
+					AnnotatedResourceField field = new AnnotatedResourceField(name, name, Integer.class, Integer.class, null, (List) Collections.emptyList(), access);
+					field.setAccessor(new ResourceFieldAccessor() {
+
+						public Object getValue(Object resource) {
+							return 13;
+						}
+
+						public void setValue(Object resource, Object fieldValue) {
+
+						}
+					});
+					fields.add(field);
+				}
+				return fields;
+			}
+		};
 		moduleRegistry = new ModuleRegistry();
 		ResourceRegistryBuilder resourceRegistryBuilder = new ResourceRegistryBuilder(moduleRegistry, jsonServiceLocator, resourceInformationBuilder);
 		DefaultResourceLookup resourceLookup = newResourceLookup();

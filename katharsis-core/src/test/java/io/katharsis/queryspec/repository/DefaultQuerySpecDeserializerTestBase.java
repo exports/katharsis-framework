@@ -57,7 +57,7 @@ public abstract class DefaultQuerySpecDeserializerTestBase extends AbstractQuery
 		});
 		taskInformation = resourceRegistry.getEntryForClass(Task.class).getResourceInformation();
 	}
-
+	
 	@Test
 	public void operations() {
 		Assert.assertFalse(deserializer.getAllowUnknownAttributes());
@@ -149,6 +149,18 @@ public abstract class DefaultQuerySpecDeserializerTestBase extends AbstractQuery
 
 		Map<String, Set<String>> params = new HashMap<>();
 		add(params, "filter[tasks][name]", "value");
+
+		QuerySpec actualSpec = deserializer.deserialize(taskInformation, params);
+		Assert.assertEquals(expectedSpec, actualSpec);
+	}
+	
+	@Test
+	public void testFilterWithComputedAttribute() throws InstantiationException, IllegalAccessException {
+		QuerySpec expectedSpec = new QuerySpec(Task.class);
+		expectedSpec.addFilter(new FilterSpec(Arrays.asList("computedAttribute"), FilterOperator.EQ, 13));
+
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "filter[tasks][computedAttribute]", "13");
 
 		QuerySpec actualSpec = deserializer.deserialize(taskInformation, params);
 		Assert.assertEquals(expectedSpec, actualSpec);

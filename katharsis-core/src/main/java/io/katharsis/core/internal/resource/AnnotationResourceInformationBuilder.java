@@ -113,7 +113,7 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 		throw new RepositoryAnnotationNotFoundException(resourceClass.getName());
 	}
 
-	private List<AnnotatedResourceField> getResourceFields(Class<?> resourceClass) {
+	protected List<AnnotatedResourceField> getResourceFields(Class<?> resourceClass) {
 		List<Field> classFields = ClassUtils.getClassFields(resourceClass);
 		List<Method> classGetters = ClassUtils.getClassGetters(resourceClass);
 

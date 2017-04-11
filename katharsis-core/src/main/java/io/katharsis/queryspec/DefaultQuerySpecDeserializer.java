@@ -16,6 +16,7 @@ import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.errorhandling.exception.BadRequestException;
 import io.katharsis.errorhandling.exception.ParametersDeserializationException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -246,9 +247,13 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		querySpec.addFilter(new FilterSpec(parameter.attributePath, parameter.operator, value));
 	}
 
-	private Class<?> getAttributeType(QuerySpec querySpec, List<String> attributePath) {
+	protected Class<?> getAttributeType(QuerySpec querySpec, List<String> attributePath) {
 		try {
-			return PropertyUtils.getPropertyClass(querySpec.getResourceClass(), attributePath);
+			Class<?> current = querySpec.getResourceClass();
+			for(String propertyName : attributePath){
+				current = getAttributeType(current, propertyName);
+			}
+			return current;
 		} catch (PropertyException e) {
 			if (allowUnknownAttributes) {
 				return String.class;
@@ -256,6 +261,18 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 				throw e;
 			}
 		}
+	}
+
+	protected Class<?> getAttributeType(Class<?> clazz, String propertyName) {
+		if(resourceRegistry.hasEntry(clazz)){
+			RegistryEntry entry = resourceRegistry.getEntryForClass(clazz);
+			ResourceInformation resourceInformation = entry.getResourceInformation();
+			ResourceField field = resourceInformation.findFieldByName(propertyName);
+			if(field != null){
+				return field.getType();
+			}
+		}
+		return PropertyUtils.getPropertyClass(clazz, propertyName);
 	}
 
 	private void deserializeSort(QuerySpec querySpec, Parameter parameter) {

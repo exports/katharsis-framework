@@ -107,7 +107,7 @@ public class QueryBuilder<T, F, O, P, E> {
 	}
 
 	protected void applySortSpec() {
-		QuerySortBuilder<T, E, O> orderBuilder = new QuerySortBuilder<>(query, backend);
+		QuerySortBuilder<T, E, O> orderBuilder = new QuerySortBuilder<>(query, backend, attributeFinder);
 		orderBuilder.applySortSpec();
 	}
 
