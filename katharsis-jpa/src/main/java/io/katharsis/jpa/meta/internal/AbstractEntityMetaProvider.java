@@ -122,6 +122,9 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 		attr.setFilterable(lobAnnotation == null);
 		attr.setSortable(lobAnnotation == null);
 
+		if(attr.getReadMethod() == null){
+			throw new IllegalStateException("no getter found for " + attr.getParent().getName() + "." + attr.getName());
+		}
 		Class<?> attributeType = attr.getReadMethod().getReturnType();
 		boolean isPrimitiveType = ClassUtils.isPrimitiveType(attributeType);
 		boolean columnNullable = columnAnnotation == null || columnAnnotation.nullable();
